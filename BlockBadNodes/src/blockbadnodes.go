@@ -186,6 +186,8 @@ func main() {
 				fmt.Println(err.Error())
 				continue
 			}
+
+			fmt.Println(output)
 			continue
 		}
 
@@ -196,6 +198,8 @@ func main() {
 				fmt.Println(err.Error())
 				continue
 			}
+
+			fmt.Println(output)
 			continue
 		}
 
@@ -206,6 +210,8 @@ func main() {
 				fmt.Println(err.Error())
 				continue
 			}
+
+			fmt.Println(output)
 			continue
 		}
 
@@ -216,6 +222,8 @@ func main() {
 				fmt.Println(err.Error())
 				continue	
 			}
+
+			fmt.Println(output)
 			continue
 		}
 
@@ -226,6 +234,8 @@ func main() {
 				fmt.Println(err.Error())
 				continue	
 			}
+
+			fmt.Println(output)
 			continue
 		}
 
