@@ -160,6 +160,9 @@ func main() {
 		verraw := parts[1]
 		vparts := strings.Split(verraw, ".")
 
+		pparts := strings.Split(pinfo.Addr, ":")
+		pinfo.Addr = pparts[0]
+
 		tmpver.Major = vparts[0]
 		tmpver.Minor = vparts[1]
 		tmpver.Patch = vparts[2]
@@ -204,6 +207,7 @@ func main() {
 		}
 
 		if tmpver.IPatch < (ver.IPatch - versions_behind) {
+			fmt.Println(pinfo.Addr)
 			cmd := exec.Command(cli, "setban", pinfo.Addr, "add", ban_time)
 			output, err := cmd.Output()
 			if err != nil {
