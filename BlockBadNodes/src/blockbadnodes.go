@@ -123,12 +123,29 @@ func GetCurrentRelease() (Version, error) {
 	return version, nil
 }
 
+func FileLog(message string) error {
+	file, err := os.OpenFile("nodeban.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return errors.New("Failed to open log file for writing: " + err.Error())
+	}
+	defer file.Close()
+
+	current_time := time.Now().Local()
+	t := current_time.Format("Jan 02 2006 03:04:05")
+	_, err = file.WriteString(t + " - " + message + "\n")
+
+	if err != nil {
+		return errors.New("Failed to write to log file: " + err.Error())
+	}
+
+	return nil
+}
 
 func main() {
 	var peerinfo []PeerInfo
 
-	versions_behind := 2
-	ban_time := "604800"
+	versions_behind := 3
+	ban_time := "259200"
 
 	cli = `/usr/local/bin/pocketcoin-cli`
 
@@ -190,6 +207,7 @@ func main() {
 				continue
 			}
 
+			FileLog("Banned " + pinfo.Addr + " Reason: Major Version Too Old")
 			fmt.Println(output)
 			continue
 		}
@@ -202,6 +220,7 @@ func main() {
 				continue
 			}
 
+			FileLog("Banned " + pinfo.Addr + " Reason: Minor Version Too Old")
 			fmt.Println(output)
 			continue
 		}
@@ -215,6 +234,7 @@ func main() {
 				continue
 			}
 
+			FileLog("Banned " + pinfo.Addr + " Reason: Patch Version Too Old")
 			fmt.Println(output)
 			continue
 		}
@@ -227,6 +247,7 @@ func main() {
 				continue	
 			}
 
+			FileLog("Banned " + pinfo.Addr + " Reason: Synced Headers Less Than 1")
 			fmt.Println(output)
 			continue
 		}
@@ -239,6 +260,7 @@ func main() {
 				continue	
 			}
 
+			FileLog("Banned " + pinfo.Addr + " Reason: Synced Blocks Less Than 1")
 			fmt.Println(output)
 			continue
 		}
