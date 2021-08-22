@@ -166,26 +166,25 @@ func main() {
 
 		tmpver.IMajor, err = strconv.Atoi(vparts[0])
 		if err != nil {
-			return 
+			continue
 		}
 
 		tmpver.IMinor, err = strconv.Atoi(vparts[1])
 		if err != nil {
-			return 
+			continue
 		}
 
 		tmpver.IPatch, err = strconv.Atoi(vparts[2])
 		if err != nil {
-			return 
+			continue
 		}
-
 
 		if tmpver.IMajor < ver.IMajor {
 			cmd := exec.Command(cli, "setban", pinfo.Addr, "add", ban_time)
 			output, err := cmd.Output()
 			if err != nil {
 				fmt.Println(err.Error())
-				return
+				continue
 			}
 			continue
 		}
@@ -195,7 +194,7 @@ func main() {
 			output, err := cmd.Output()
 			if err != nil {
 				fmt.Println(err.Error())
-				return
+				continue
 			}
 			continue
 		}
@@ -205,10 +204,31 @@ func main() {
 			output, err := cmd.Output()
 			if err != nil {
 				fmt.Println(err.Error())
-				return
+				continue
 			}
 			continue
 		}
+
+		if pinfo.SyncedHeaders == -1 {
+			cmd := exec.Command(cli, "setban", pinfo.Addr, "add", ban_time)
+			output, err := cmd.Output()
+			if err != nil {
+				fmt.Println(err.Error())
+				continue	
+			}
+			continue
+		}
+
+		if pinfo.SyncedBlocks == -1 {
+			cmd := exec.Command(cli, "setban", pinfo.Addr, "add", ban_time)
+			output, err := cmd.Output()
+			if err != nil {
+				fmt.Println(err.Error())
+				continue	
+			}
+			continue
+		}
+
 		
 	}
 }
