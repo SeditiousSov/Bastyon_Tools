@@ -1,0 +1,27 @@
+# Twilio Config Data To Receive Text Messages On New Releases
+use_twilio: true
+twilio_account_sid: "your_twilio_account_sid"
+twilio_auth_token: "your_twilio_auth_token"
+twilio_phone_number: "+your_twilio_phone_number_keep_the_+"
+destination_phone_number: "your_phone_number_to_get_texted_to (ie: 248-555-1212)"
+
+
+# Email Config Data To Receive Emails On New Releases
+use_email: false
+email_server: "your.server.com"
+email_port: 25
+email_from: "support@your.server.com"
+email_to: "youraddress@your.server.com"
+
+
+# Path To pocketcoin-cli
+bastyon_cli: "/usr/local/bin/pocketcoin-cli"
+
+# Action To Take If Your System Is Out Of Date
+use_action: true
+action: "/path/to/some/script"
+
+# Parameters To "action" script. Use "none" if there aren't any
+action_params:
+  - "none"
+  - "none" 
