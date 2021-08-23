@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"io/ioutil"
 	"crypto/tls"
-	"encoding/json"
 
         "gopkg.in/yaml.v2"
 	twilio "github.com/twilio/twilio-go"
@@ -156,8 +155,6 @@ func GetCurrentRelease() (Version, error) {
 
 
 func main() {
-	var peerinfo []PeerInfo
-
 	// Load Config
         etcflag := false
         b, err := ioutil.ReadFile("/etc/bastyon/checkforupdate.yml")
@@ -192,19 +189,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 		return 
-	}
-
-	cmd := exec.Command(cli, "getpeerinfo")
-	jsn, err := cmd.Output()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	err = json.Unmarshal(jsn, &peerinfo)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
 	}
 
 	ver, err := GetLatestRelease()
