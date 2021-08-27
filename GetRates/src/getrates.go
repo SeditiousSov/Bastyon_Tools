@@ -102,10 +102,41 @@ func main() {
 
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: " + os.Args[0] + " \"<bastyon_name>\"")
+		fmt.Println("Usage: " + os.Args[0] + " txid \"<post_url>\"")
 		return
 	}
 
 	name := os.Args[1]
+	if name == "txid" {
+		if len(os.Args) == 3 {
+			url := os.Args[2]
+
+			CleanURL(&url)
+
+			cmd := exec.Command(cli, "getpostscores", url)
+			jsn, err := cmd.Output()
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			err = json.Unmarshal(jsn, &rates)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			for _, rate := range rates {
+				fmt.Println(rate.Name + ": " + rate.Value)
+			}
+		} else {
+			fmt.Println("Usage: " + os.Args[0] + " \"<bastyon_name>\"")
+			fmt.Println("Usage: " + os.Args[0] + " txid \"<post_url>\"")
+			return
+		}
+
+		return
+	}
 
 	cmd := exec.Command(cli, "getuseraddress", name)
 	ajsn, err := cmd.Output()
