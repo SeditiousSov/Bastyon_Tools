@@ -333,6 +333,9 @@ func handleGetBlocks(w http.ResponseWriter, r *http.Request) {
         }
 
 	fmt.Fprintf(w, tosend)
+	tosend = ""
+	names = nil
+	blockedc = nil
 } 
 
 func handleProcess(w http.ResponseWriter, r *http.Request) {
