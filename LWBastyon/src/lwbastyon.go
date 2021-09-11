@@ -115,7 +115,7 @@ func GetHTMLPage() (string) {
 			}
 			</script>
 		</head>
-		<body onload="javascript:gethistoricalstrip();">
+		<body onload="javascript:load();">
 			<h1>Lightweight Bastyon</h1>
 			<br/>
 			<button type="button" onclick="location.reload();">Refresh</button>
