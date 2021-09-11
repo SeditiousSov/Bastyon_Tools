@@ -25,12 +25,15 @@ import "C"
 import (
 	"os"
 	"fmt"
+	"time"
 	"bytes"
+	"bufio"
 	"strings"
 
 	"os/exec"
 	"net/url"
 	"net/http"
+	"os/signal"
 	"io/ioutil"
 	"encoding/json"
 )
@@ -87,39 +90,32 @@ var uname string
 var pass string
 
 func main() {
-        var params []string
 	var posts Post
 
-        cookie, err := ioutil.ReadFile("/home/pnet/.pocketcoin/.cookie")
-        if err != nil {
-                fmt.Println(err.Error())
-                return
-        }
-
+	cookie := os.Getenv("BASTYON_PASSWORD")
         parts := strings.Split(string(cookie), ":")
         uname = parts[0]
         pass = parts[1]
 
-        params = append(params, "0")
-        params = append(params, "")
-        params = append(params, "200")
-        params = append(params, "en")
+        signalChannel := make(chan os.Signal, 2)
+        signal.Notify(signalChannel, os.Interrupt)
+        go func() {
+                for {
+                        <-signalChannel
 
-        data := Payload {
-                Jsonrpc: "1.0",
-                ID: "curltext",
-                Method: "gethistoricalstrip",
-                Params: params,
-        }
+			cmd := exec.Command("reset")
+			cmd.Stdout = os.Stdout
+			cmd.Run()
+			os.Exit(1)
+                }
+        }()
 
-        payloadBytes, err := json.Marshal(data)
-        if err != nil {
-                fmt.Println(err.Error())
-                return
-        }
-        body := bytes.NewReader(payloadBytes)
+	rpccmd := `{"jsonrpc": "1.0", "id":"curltest", "method":"gethistoricalstrip", "params": [0, "", 300, "en"] }`
+        body := bytes.NewReader([]byte(rpccmd))
 
-        req, err := http.NewRequest("POST", "http://localhost:37071", body)
+
+	// Change to localhost (127.0.0.1) or your own node
+        req, err := http.NewRequest("POST", "http://74.208.128.141:37071", body)
         if err != nil {
                 fmt.Println(err.Error())
                 return
@@ -127,7 +123,6 @@ func main() {
 
         req.SetBasicAuth(uname, pass)
         req.Header.Set("Content-Type", "text/json")
-	//body := strings.NewReader(params.Encode())
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -169,6 +164,10 @@ func main() {
 			fmt.Println("")
 		}
 
+		fmt.Println("")
+		fmt.Println("https://bastyon.com/post?s=" + post.Txid)
+		fmt.Println("")
+
 		fmt.Println("----------------------")
 		fmt.Println(decoded)
 		fmt.Println(" ")
@@ -190,19 +189,87 @@ func main() {
 			cmd.Stdout = os.Stdout
 			cmd.Run()
 			os.Exit(0)
-		case "p":
-			if len(post.I) != 0 {
-				var imglist string
+		case "b":
+			go func() {
+				cmd := exec.Command("brave-browser", "https://bastyon.com/post?s=" + post.Txid)
+				cmd.Run()
+			}()
 
+			fmt.Println("Press Enter To Proceed")
+			C.getch()
+		case "o":
+			var openlist []string
+			if len(post.I) != 0 {
 				for _, i := range post.I {
-					imglist += post.I + " "
+					openlist = append(openlist, i)
+				}
+			}
+
+			if len(post.U) != 0 {
+				durl, err := url.QueryUnescape(post.U)
+				if err != nil {
+					fmt.Println(err.Error())
+					time.Sleep(500 * time.Millisecond)
+					continue
 				}
 
-				cmd := exec.Command("brave-browser --new-window " + imglist)
-				cmd.Run()
+				openlist = append(openlist, durl)
 			}
-		}
 
-		fmt.Println(key)
+			if len(openlist) > 0 {
+				go func() {
+					cmd := exec.Command("brave-browser", openlist...)
+					cmd.Run()
+				}()
+
+				fmt.Println("Press Enter To Proceed")
+				C.getch()
+			}
+		case "p":
+			var params []string
+
+			cmd := exec.Command("clear")
+			cmd.Stdout = os.Stdout
+			cmd.Run()
+
+			fmt.Println("What's New? (Enter To Complete): ")
+			reader := bufio.NewReader(os.Stdin)
+
+			rawtext, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+
+			text := strings.TrimSpace(rawtext)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			
+			params = append(params, text)
+
+			fmt.Println("")
+			fmt.Println("Add Categories/Tags (Enter To Complete): ")
+		
+			tagsraw, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+	
+			tagsraw = strings.TrimSpace(tagsraw)
+			tagsraw = strings.Replace(tagsraw, "#", "", -1)
+			tags := strings.Split(tagsraw, " ")
+
+			params = append(params, tags...)
+
+			fmt.Println("Posting... ")	
+			cmd = exec.Command("/usr/bin/bpost", params...)
+			cmd.Stdout = os.Stdout
+			cmd.Run()
+			fmt.Println("Complete")
+			time.Sleep(2 * time.Second)
+		}
 	}
 }

@@ -214,7 +214,7 @@ func main() {
         router.HandleFunc("/", handleMain)
         router.HandleFunc("/gethistoricalstrip", handleGetHistoricalStrip)
 
-        err = http.ListenAndServe(":8181", router)
+        err = http.ListenAndServe(":8182", router)
         if err != nil {
                 fmt.Println("ListenAndServe: ", err)
         }
