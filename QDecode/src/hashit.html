@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<title>Test</title>
+
+		<script type="text/javascript">
+		function hash() {
+		    if (window.crypto.subtle) return window.crypto.subtle.digest("SHA-256", t).then(i => function() {
+			if (!i) return "";
+			console.log(i);
+			let t = "";
+			const n = "0123456789abcdef",
+			    e = new Uint8Array(i);
+			return e.forEach(e => t += n[e >> 4] + n[15 & e]), t
+		    }());
+		    console.log(t);
+		    //const e = yield b.e(8).then(b.t.bind(null, 157, 7));
+		    //return (new e.sha256).update(f.from(t)).digest("hex")
+		}
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

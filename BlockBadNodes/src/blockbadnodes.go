@@ -1,7 +1,10 @@
 package main
 
 import (
+	"os"
 	"fmt"
+	"time"
+	"errors"
 	"strings"
 	"strconv"
 
@@ -144,7 +147,7 @@ func FileLog(message string) error {
 func main() {
 	var peerinfo []PeerInfo
 
-	versions_behind := 3
+	versions_behind := 0
 	ban_time := "259200"
 
 	cli = `/usr/local/bin/pocketcoin-cli`
