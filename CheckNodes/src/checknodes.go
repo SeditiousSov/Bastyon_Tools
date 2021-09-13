@@ -322,7 +322,7 @@ func main() {
 	// Find The Height That Most Nodes Agree Is The Current Height
 	for _, v := range mcheight {
 		for key, val := range mcheight {
-			if val >= pheight {
+			if val >= v {
 				pheight = key
 			}
 		}
@@ -331,8 +331,8 @@ func main() {
 	// Find The TXID That Most Nodes Agree Is The Current TXID
 	for _, v := range mctxid {
 		for key, val := range mctxid {
-			if val >= pheight {
-				pheight = key
+			if val >= v {
+				ptxid = key
 			}
 		}
 	}
@@ -346,9 +346,11 @@ func main() {
 	// Check For Any Rogue Or Unagreeable Nodes
 	for k, v := range nodedata {
 		if v.Data.Height < iHeight || v.Data.Contents[0].Txid != ptxid {
-			sHeight := strconv.Itoa(v.Data.Height)
-			stringval := `Node ` + k + ` Is Suspect.  Height: (` + sHeight + `/` + pheight + `) Txid: ` + v.Data.Contents[0].Txid + `/` + ptxid
-			assclowns[k] = stringval
+			if v.Data.Height < (iHeight - 5) {
+				sHeight := strconv.Itoa(v.Data.Height)
+				stringval := `Node ` + k + ` Is Suspect.  Height: (` + sHeight + `/` + pheight + `) Txid: ` + v.Data.Contents[0].Txid + `/` + ptxid
+				assclowns[k] = stringval
+			}
 		}
 	}
 
@@ -356,6 +358,7 @@ func main() {
 	// If AssClowns Is 0, Then The Node That Was Different On Height Or Txid 
 	// Probably Has More Recent Info Then The Consensus
 	if len(assclowns) == 0 {
+		fmt.Println("assclowns")
 		fmt.Println("All Scanned Nodes Are Good")
 		return
 	}
