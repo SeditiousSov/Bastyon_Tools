@@ -322,7 +322,7 @@ func main() {
 	// Find The Height That Most Nodes Agree Is The Current Height
 	for _, v := range mcheight {
 		for key, val := range mcheight {
-			if val >= v {
+			if val >= pheight {
 				pheight = key
 			}
 		}
@@ -331,7 +331,7 @@ func main() {
 	// Find The TXID That Most Nodes Agree Is The Current TXID
 	for _, v := range mctxid {
 		for key, val := range mctxid {
-			if val >= v {
+			if val >= pheight {
 				pheight = key
 			}
 		}
