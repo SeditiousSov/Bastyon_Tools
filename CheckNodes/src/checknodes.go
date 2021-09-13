@@ -248,7 +248,13 @@ func GetHierarchialStrip(node string) (PostsEX, error) {
 }
 
 func main() {
+	var ptxid string
+	var pheight string
 	var nodedata = make(map[string]PostsEX)
+	var mctxid = make(map[string]int)
+	var mcheight = make(map[string]int)
+	var assclowns = make(map[string]string)
+
 
 	// Delete From Here (If You Defined rcpuser and password in the conf)
         cookie, err := ioutil.ReadFile("/home/pnet/.pocketcoin/.cookie")
@@ -266,12 +272,19 @@ func main() {
 	// uname = "your_rpc_user"
 	// pass = "your_rpc_password"
 
+
+
+
+	// Get As Many Node IPs As Possible
 	peerlist, err := GetPeerInfo()
 	chkerror(err)
 
 	nodelist, err := GetAllNodes()
 	chkerror(err)
 
+
+
+	// Get Historical Strip For Height And TXID Of Remote Nodes
 	for _, node := range nodelist {
 		pex, err := GetHierarchialStrip(node)
 		if err != nil {
@@ -290,13 +303,70 @@ func main() {
 		nodedata[peer] = pex
 	}
 
+
+
+
 	// Get Most Common Height and Txid
-//	for k, v := range nodedata {
-	
-//	}
+	for _, v := range nodedata {
+		h := strconv.Itoa(v.Data.Height)
+		mcheight[h]++
+		mctxid[v.Data.Contents[0].Txid]++
+	}
+
+	// Everyone Has The Same Height, And Txid
+	if len(mcheight) == 1 && len(mctxid) == 1 {
+		fmt.Println("All Scanned Nodes Are Good")
+		return
+	}
+
+	// Find The Height That Most Nodes Agree Is The Current Height
+	for _, v := range mcheight {
+		for key, val := range mcheight {
+			if val >= v {
+				pheight = key
+			}
+		}
+	}
+
+	// Find The TXID That Most Nodes Agree Is The Current TXID
+	for _, v := range mctxid {
+		for key, val := range mctxid {
+			if val >= v {
+				pheight = key
+			}
+		}
+	}
+
+	iHeight, err := strconv.Atoi(pheight)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Check For Any Rogue Or Unagreeable Nodes
+	for k, v := range nodedata {
+		if v.Data.Height < iHeight || v.Data.Contents[0].Txid != ptxid {
+			sHeight := strconv.Itoa(v.Data.Height)
+			stringval := `Node ` + k + ` Is Suspect.  Height: (` + sHeight + `/` + pheight + `) Txid: ` + v.Data.Contents[0].Txid + `/` + ptxid
+			assclowns[k] = stringval
+		}
+	}
 
 
+	// If AssClowns Is 0, Then The Node That Was Different On Height Or Txid 
+	// Probably Has More Recent Info Then The Consensus
+	if len(assclowns) == 0 {
+		fmt.Println("All Scanned Nodes Are Good")
+		return
+	}
 
+
+	// We've Got Suspect Nodes.  Probably Check Just How Far Off They Are
+	for _, v := range assclowns {
+		fmt.Println(v)
+	}
+
+	return
 	for k, v := range nodedata {
 		fmt.Print(k + " - ")
 		fmt.Print(v.Data.Height)
